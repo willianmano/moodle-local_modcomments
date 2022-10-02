@@ -1,0 +1,48 @@
+<div class="moove-container-fluid p-0 mb-4 path-local_modcomments">
+    <h5>{{#str}}activityscomments, local_modcomments{{/str}}</h5>
+
+    <div class="card card-body">
+        <div class="newcomment d-flex">
+            <div class="userimg">
+                <img src="{{userpicture}}" alt="{{userfullname}}">
+            </div>
+            <div class="d-flex align-items-center justify-content-center ml-2">
+                <form class="comment-form">
+                    <div class="input-group">
+                        <input type="text" class="form-control comment-input" style="width: 400px;" placeholder="{{#str}}typeyourcomment, local_modcomments{{/str}}" required>
+                        <div class="input-group-append comment-button">
+                            <button type="submit" class="input-group-text">{{#str}}comment, local_modcomments{{/str}}</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <hr>
+
+        <div class="comments-container">
+            {{#comments}}
+                <div class="comment fadeIn">
+                    <div class="userinfo">
+                        <div class="userimg">
+                            <img src="{{userpicture}}" alt="{{userfullname}}">
+                        </div>
+                        <div class="nameanddate">
+                            <p class="username">{{userfullname}}</p>
+                            <span class="small">{{humantimecreated}}</span>
+                        </div>
+                    </div>
+                    <p class="text">{{comment}}</p>
+                </div>
+            {{/comments}}
+        </div>
+    </div>
+</div>
+
+{{#js}}
+    require([
+        'local_modcomments/addcomment'
+    ], function(AddComment) {
+        AddComment.init({{courseid}}, {{cmid}}, '{{modname}}');
+    });
+{{/js}}
