@@ -16,7 +16,7 @@ function local_modcomments_moove_module_footer() {
 
     $disabledmodules = ['forum'];
 
-    if (isguestuser() || !isloggedin()) {
+    if (isguestuser() || !isloggedin() || !$PAGE->cm) {
         return false;
     }
 

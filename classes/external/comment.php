@@ -6,6 +6,7 @@ use external_api;
 use external_value;
 use external_single_structure;
 use external_function_parameters;
+use local_modcomments\notification\commentadded;
 use moodle_url;
 use html_writer;
 use context_course;
@@ -56,6 +57,11 @@ class comment extends external_api {
         $commentmodel = new \local_modcomments\models\comment();
 
         $usercomment = $commentmodel->save($courseid, $USER->id, $cmid, $modname, $comment);
+
+        $context = context_course::instance($courseid);
+
+        $notification = new commentadded($context, $cmid, $modname);
+        $notification->send();
 
         return [
             'comment' => $comment,
