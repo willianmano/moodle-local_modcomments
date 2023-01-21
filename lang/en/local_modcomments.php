@@ -21,3 +21,6 @@ $string['messageprovider:commentadded'] = 'Notify teachers when a comment is add
 $string['notification:commentadded'] = 'New comment added';
 $string['notification:commentaddedhtml'] = 'A student added a new comment to an activity in one of your courses.';
 $string['notification:clicktoaccess'] = 'Click to access the activity';
+
+$string['modcommentsheader'] = 'Module comments settings';
+$string['enablemodcomments'] = 'Enable comments in this activity?';
