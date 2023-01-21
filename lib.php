@@ -24,11 +24,26 @@ function local_modcomments_moove_module_footer() {
         return false;
     }
 
+    $settings = new \local_modcomments\util\settings();
+    if (!$settings->are_comments_enabled($PAGE->cm->id)) {
+        return false;
+    }
+
     $renderer = $PAGE->get_renderer('local_modcomments');
 
     $contentrenderable = new \local_modcomments\output\thread($PAGE->course->id, $PAGE->cm->id, $PAGE->cm->modname);
 
     return $renderer->render($contentrenderable);
+}
+
+function local_modcomments_before_footer() {
+    global $CFG;
+
+    if ($CFG->theme == 'moove') {
+        return '';
+    }
+
+    return local_modcomments_moove_module_footer();
 }
 
 /**
