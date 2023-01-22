@@ -17,12 +17,12 @@ use renderer_base;
  * @author      Willian Mano <willianmanoaraujo@gmail.com>
  */
 class thread implements renderable, templatable {
-    protected $courseid;
+    protected $course;
     protected $cmid;
     protected $modname;
 
-    public function __construct($courseid, $cmid, $modname) {
-        $this->courseid = $courseid;
+    public function __construct($course, $cmid, $modname) {
+        $this->course = $course;
         $this->cmid = $cmid;
         $this->modname = $modname;
     }
@@ -36,10 +36,10 @@ class thread implements renderable, templatable {
         $commentmodel = new comment();
 
         return [
-            'courseid' => $this->courseid,
+            'courseid' => $this->course->id,
             'cmid' => $this->cmid,
             'modname' => $this->modname,
-            'comments' => $commentmodel->get_comments($this->cmid),
+            'comments' => $commentmodel->get_comments($this->course, $this->cmid),
             'userfullname' => fullname($USER),
             'userpicture' => $userpicture->get_url($PAGE),
         ];

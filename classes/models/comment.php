@@ -2,6 +2,8 @@
 
 namespace local_modcomments\models;
 
+use local_modcomments\util\group;
+
 /**
  * Comment model class.
  *
@@ -29,7 +31,7 @@ class comment {
         return $usercomment;
     }
 
-    public function get_comments($cmid) {
+    public function get_comments($course, $cmid) {
         global $DB, $PAGE;
 
         $sql = 'SELECT
@@ -38,10 +40,24 @@ class comment {
                     u.middlename, u.alternatename, u.imagealt, u.email  
                 FROM {modcomments_comments} c
                 INNER JOIN {user} u ON u.id = c.userid
-                WHERE c.cmid = :cmid
-                ORDER BY c.id DESC';
+                WHERE c.cmid = :cmid ';
 
-        $comments = $DB->get_records_sql($sql, ['cmid' => $cmid]);
+        $params = ['cmid' => $cmid];
+
+        if ($course->groupmode == 1) {
+            $grouputil = new group();
+
+            $ids = $grouputil->get_user_groups_members_ids($course->id);
+
+            list($insql, $inparams) = $DB->get_in_or_equal($ids,  SQL_PARAMS_NAMED);
+
+            $sql .= ' AND u.id ' . $insql;
+            $params = array_merge($params, $inparams);
+        }
+
+        $sql .= ' ORDER BY c.id DESC';
+
+        $comments = $DB->get_records_sql($sql, $params);
 
         $data = [];
         if (!$comments) {

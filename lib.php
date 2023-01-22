@@ -31,7 +31,7 @@ function local_modcomments_moove_module_footer() {
 
     $renderer = $PAGE->get_renderer('local_modcomments');
 
-    $contentrenderable = new \local_modcomments\output\thread($PAGE->course->id, $PAGE->cm->id, $PAGE->cm->modname);
+    $contentrenderable = new \local_modcomments\output\thread($PAGE->course, $PAGE->cm->id, $PAGE->cm->modname);
 
     return $renderer->render($contentrenderable);
 }
