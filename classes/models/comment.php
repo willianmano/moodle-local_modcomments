@@ -29,84 +29,69 @@ use local_modcomments\util\user;
  * @author      Willian Mano <willianmanoaraujo@gmail.com>
  */
 class comment {
-    public function save($context, $courseid, $userid, $cmid, $modname, $comment) {
-        global $DB;
+    public function save($context, $course, $userid, $cm, $modname, $comment) {
+        global $CFG;
 
         list($finalcomment, $userstonotify) = $this->get_final_comment_and_users_to_notify($context, $courseid, $comment);
 
-        $usercomment = new \stdClass();
-        $usercomment->courseid = $courseid;
-        $usercomment->userid = $userid;
-        $usercomment->cmid = $cmid;
-        $usercomment->module = $modname;
-        $usercomment->comment = $finalcomment;
-        $usercomment->timecreated = time();
-        $usercomment->timemodified = time();
+        require_once("$CFG->dirroot/comment/lib.php");
 
-        $id = $DB->insert_record('modcomments_comments', $usercomment);
+        $args = new \stdClass();
+        $args->context   = $context;
+        $args->course    = $course;
+        $args->cm        = $cm;
+        $args->component = 'local_modcomments';
+        $args->itemid    = $cm->id;
+        $args->area      = 'local_modcomments';
 
-        $usercomment->id = $id;
+        $manager = new \comment($args);
+        $newcomment = $manager->add($finalcomment, FORMAT_HTML);
 
-        $notification = new commentadded($context, $courseid, $cmid, $modname);
+        $notification = new commentadded($context, $course->id, $cm->id, $modname);
         $notification->send();
 
         if ($userstonotify) {
-            $notification = new mention($context, $courseid, $cmid, $modname);
+            $notification = new mention($context, $course->id, $cm->id, $modname);
             $notification->send_mentions_notifications($userstonotify);
         }
 
-        return $usercomment;
+        return $newcomment;
     }
 
-    public function get_comments($course, $cmid) {
-        global $DB, $PAGE;
+    public function get_comments($context, $course, $cm) {
+        global $CFG;
 
-        $sql = 'SELECT
-                    c.id, c.timecreated, c.comment,
-                    u.id as userid, u.picture, u.firstname, u.lastname, u.firstnamephonetic, u.lastnamephonetic,
-                    u.middlename, u.alternatename, u.imagealt, u.email
-                FROM {modcomments_comments} c
-                INNER JOIN {user} u ON u.id = c.userid
-                WHERE c.cmid = :cmid ';
+        require_once("$CFG->dirroot/comment/lib.php");
 
-        $params = ['cmid' => $cmid];
+        $args = new \stdClass();
+        $args->context   = $context;
+        $args->course    = $course;
+        $args->cm        = $cm;
+        $args->component = 'local_modcomments';
+        $args->itemid    = $cm->id;
+        $args->area      = 'local_modcomments';
+
+        $manager = new \comment($args);
+
+        $comments = $manager->get_comments();
+
+        if (!$comments) {
+            return false;
+        }
 
         if ($course->groupmode == 1) {
             $grouputil = new group();
 
-            $ids = $grouputil->get_user_groups_members_ids($course->id);
+            $userids = $grouputil->get_user_groups_members_ids($course->id);
 
-            list($insql, $inparams) = $DB->get_in_or_equal($ids,  SQL_PARAMS_NAMED);
-
-            $sql .= ' AND u.id ' . $insql;
-            $params = array_merge($params, $inparams);
+            foreach ($comments as $key => $comment) {
+                if (!in_array($comment->userid, $userids)) {
+                    unset($comments[$key]);
+                }
+            }
         }
 
-        $sql .= ' ORDER BY c.id DESC';
-
-        $comments = $DB->get_records_sql($sql, $params);
-
-        $data = [];
-        if (!$comments) {
-            return $data;
-        }
-
-        foreach ($comments as $comment) {
-            $user = clone($comment);
-            $user->id = $user->userid;
-
-            $userpicture = new \user_picture($user);
-            $userpicture->size = 35;
-
-            $data[] = [
-                'userfullname' => fullname($user),
-                'userpicture' => $userpicture->get_url($PAGE),
-                'comment' => $comment->comment,
-                'humantimecreated' => userdate($comment->timecreated)
-            ];
-        }
-
-        return $data;
+        return array_values($comments);
     }
 
     private function get_final_comment_and_users_to_notify($context, $courseid, $comment) {

@@ -22,9 +22,15 @@
     display: inline-block;
 }
 
+.path-local_modcomments .userinfo .userinitials {
+    width: 42px;
+    height: 42px;
+}
+
 .path-local_modcomments .userimg img {
     display: inline;
     width: 42px;
+    height: 42px;
     border-radius: 50%;
     border: 1px solid #ededed;
 }

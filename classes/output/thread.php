@@ -31,12 +31,12 @@ use renderer_base;
 class thread implements renderable, templatable {
     protected $course;
     protected $cmid;
-    protected $modname;
+    protected $context;
 
-    public function __construct($course, $cmid, $modname) {
+    public function __construct($course, $cm, $context) {
         $this->course = $course;
-        $this->cmid = $cmid;
-        $this->modname = $modname;
+        $this->cm = $cm;
+        $this->context = $cm->context;
     }
 
     public function export_for_template(renderer_base $output) {
@@ -49,9 +49,9 @@ class thread implements renderable, templatable {
 
         return [
             'courseid' => $this->course->id,
-            'cmid' => $this->cmid,
-            'modname' => $this->modname,
-            'comments' => $commentmodel->get_comments($this->course, $this->cmid),
+            'cmid' => $this->cm->id,
+            'modname' => $this->cm->modname,
+            'comments' => $commentmodel->get_comments($this->context, $this->course, $this->cm),
             'userfullname' => fullname($USER),
             'userpicture' => $userpicture->get_url($PAGE),
         ];

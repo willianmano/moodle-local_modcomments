@@ -42,7 +42,7 @@ function local_modcomments_moove_module_footer() {
 
     $renderer = $PAGE->get_renderer('local_modcomments');
 
-    $contentrenderable = new \local_modcomments\output\thread($PAGE->course, $PAGE->cm->id, $PAGE->cm->modname);
+    $contentrenderable = new \local_modcomments\output\thread($PAGE->course, $PAGE->cm, $PAGE->context);
 
     return $renderer->render($contentrenderable);
 }
@@ -91,4 +91,18 @@ function local_modcomments_coursemodule_edit_post_actions($moduleinfo, $course) 
     $settings->update_comments_setting($moduleinfo->coursemodule, $moduleinfo->enablemodcomments);
 
     return $moduleinfo;
+}
+
+function local_modcomments_comment_permissions($args) {
+    return ['post' => true, 'view' => true];
+}
+
+function local_modcomments_comment_validate($args) {
+    $settings = new \local_modcomments\util\settings();
+
+    if (!$settings->are_comments_enabled($args->cm->id)) {
+        throw new comment_exception('commentsdisabled');
+    }
+
+    return true;
 }

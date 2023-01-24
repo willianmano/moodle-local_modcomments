@@ -60,7 +60,7 @@ class comment extends external_api {
      * @throws \moodle_exception
      */
     public static function add($courseid, $cmid, $modname, $comment) {
-        global $USER;
+        global $USER, $PAGE;
 
         self::validate_parameters(self::add_parameters(), [
             'courseid' => $courseid,
@@ -72,8 +72,11 @@ class comment extends external_api {
         $commentmodel = new \local_modcomments\models\comment();
 
         $context = \context_module::instance($cmid);
+        $PAGE->set_context($context);
 
-        $usercomment = $commentmodel->save($context, $courseid, $USER->id, $cmid, $modname, $comment);
+        list($course, $cm) = get_course_and_cm_from_cmid($cmid, $modname, $courseid);
+
+        $usercomment = $commentmodel->save($context, $course, $USER->id, $cm, $modname, $comment);
 
         return [
             'comment' => $comment,
