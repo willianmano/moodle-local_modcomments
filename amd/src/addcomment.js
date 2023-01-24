@@ -35,10 +35,12 @@ define(['jquery', 'core/ajax', 'local_modcomments/sweetalert'], function($, Ajax
     AddComment.prototype.modname = '';
 
     AddComment.prototype.registerEventListeners = function() {
-        $(".comment-form").submit(function(event) {
-            event.preventDefault();
+        $(document).on('click', '.post-comment-btn', function(event) {
+            var target = $(event.currentTarget).closest('.input-group').children('.post-comment-input');
 
-            this.saveComment($('.comment-form .comment-input').val());
+            if (target) {
+                this.saveComment(target.html());
+            }
         }.bind(this));
     };
 
@@ -91,7 +93,7 @@ define(['jquery', 'core/ajax', 'local_modcomments/sweetalert'], function($, Ajax
 
     AddComment.prototype.addCommentContainer = function(data) {
         var targetdiv = $('.comments-container');
-        var userimg = $('.newcomment .userimg img').clone();
+        var userimg = $('.add-comment .userimg').clone();
         var userfullname = userimg.attr('alt');
 
         var newcomment = $("<div class='comment fadeIn'>" +
@@ -107,7 +109,7 @@ define(['jquery', 'core/ajax', 'local_modcomments/sweetalert'], function($, Ajax
 
         targetdiv.prepend(newcomment);
 
-        $('.comment-form .comment-input').val('');
+        $('.post-comment-input').empty();
     };
 
     return {

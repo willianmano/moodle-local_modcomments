@@ -33,7 +33,7 @@ use moodle_url;
  * @copyright   2021 World Bank Group <https://worldbank.org>
  * @author      Willian Mano <willianmanoaraujo@gmail.com>
  */
-class commentadded {
+class mention {
     /** @var \context Course context. */
     public $context;
     /** @var \context Course ID. */
@@ -58,47 +58,21 @@ class commentadded {
         $this->modname = $modname;
     }
 
-    protected function get_teachers(): array {
-        global $DB;
-
-        $fields = 'DISTINCT u.id, u.firstname, u.lastname, u.email';
-
-        $capjoin = get_enrolled_with_capabilities_join($this->context, '', 'moodle/course:update');
-
-        $from = ' {user} u ' . $capjoin->joins;
-
-        $params = $capjoin->params;
-
-        $sql = "SELECT {$fields} FROM {$from} WHERE {$capjoin->wheres}";
-
-        $records = $DB->get_records_sql($sql, $params);
-
-        if (!$records) {
-            return [];
-        }
-
-        return array_values($records);
-    }
-
     /**
      * Send the message
+     *
+     * @param array $users A list of users ids to be notifiable
      *
      * @return bool
      *
      * @throws \coding_exception
      * @throws \moodle_exception
      */
-    public function send(): bool {
-        $teachers = $this->get_teachers();
-
-        if (!$teachers) {
-            return true;
-        }
-
+    public function send_mentions_notifications(array $users) {
         $messagedata = $this->get_mention_message_data();
 
-        foreach ($teachers as $teacher) {
-            $messagedata->userto = $teacher;
+        foreach ($users as $user) {
+            $messagedata->userto = $user;
 
             message_send($messagedata);
         }
@@ -117,22 +91,22 @@ class commentadded {
     protected function get_mention_message_data() {
         global $USER;
 
-        $commentadded = get_string('notification:commentadded', 'local_modcomments');
-        $commentaddedhtml = get_string('notification:commentaddedhtml', 'local_modcomments');
-        $clicktoaccess = get_string('notification:clicktoaccess', 'local_modcomments');
+        $youwerementioned = get_string('message_mentioned', 'local_modcomments');
+        $youwerementionedinanactivity = get_string('message_mentionedinanactivity', 'local_modcomments', $this->modname);
+        $clicktoaccessportfolio = get_string('message_clicktoaccessactivity', 'local_modcomments');
 
         $url = new moodle_url("/mod/{$this->modname}/view.php", ['id' => $this->cmid]);
 
         $message = new message();
         $message->component = 'local_modcomments';
-        $message->name = 'commentadded';
+        $message->name = 'mention';
         $message->userfrom = $USER;
-        $message->subject = $commentadded;
-        $message->fullmessage = $commentadded;
+        $message->subject = $youwerementioned;
+        $message->fullmessage = "{$youwerementioned}: {$this->modname}";
         $message->fullmessageformat = FORMAT_PLAIN;
-        $message->fullmessagehtml = "<p>{$commentaddedhtml}</p>";
-        $message->fullmessagehtml .= "<p><a class='btn btn-primary' href='{$url}'>{$clicktoaccess}</a></p>";
-        $message->smallmessage = $commentadded;
+        $message->fullmessagehtml = '<p>'.$youwerementionedinanactivity.'</p>';
+        $message->fullmessagehtml .= '<p><a class="btn btn-primary" href="'.$url.'">'.$clicktoaccessportfolio.'</a></p>';
+        $message->smallmessage = $youwerementioned;
         $message->contexturl = $url;
         $message->contexturlname = get_string('message_mentioncontextname', 'local_modcomments');
         $message->courseid = $this->courseid;

@@ -21,16 +21,12 @@ use external_value;
 use external_single_structure;
 use external_function_parameters;
 use local_modcomments\notification\commentadded;
-use moodle_url;
-use html_writer;
-use context_course;
-use context_module;
 
 /**
  * Section external api class.
  *
  * @package     local_modcomments
- * @copyright   2022 Willian Mano {@link https://conecti.me}
+ * @copyright   2023 Willian Mano {@link https://conecti.me}
  * @author      Willian Mano <willianmanoaraujo@gmail.com>
  */
 class comment extends external_api {
@@ -44,7 +40,7 @@ class comment extends external_api {
             'courseid' => new external_value(PARAM_INT, 'The course id', VALUE_REQUIRED),
             'cmid' => new external_value(PARAM_INT, 'The course module id', VALUE_REQUIRED),
             'modname' => new external_value(PARAM_TEXT, 'The course module name', VALUE_REQUIRED),
-            'comment' => new external_value(PARAM_TEXT, 'The comment text', VALUE_REQUIRED)
+            'comment' => new external_value(PARAM_RAW, 'The comment text', VALUE_REQUIRED)
         ]);
     }
 
@@ -75,12 +71,9 @@ class comment extends external_api {
 
         $commentmodel = new \local_modcomments\models\comment();
 
-        $usercomment = $commentmodel->save($courseid, $USER->id, $cmid, $modname, $comment);
+        $context = \context_module::instance($cmid);
 
-        $context = context_course::instance($courseid);
-
-        $notification = new commentadded($context, $cmid, $modname);
-        $notification->send();
+        $usercomment = $commentmodel->save($context, $courseid, $USER->id, $cmid, $modname, $comment);
 
         return [
             'comment' => $comment,

@@ -38,3 +38,9 @@ $string['notification:clicktoaccess'] = 'Clique para acessar a atividade';
 
 $string['modcommentsheader'] = 'Configurações dos comentários do módulo';
 $string['enablemodcomments'] = 'Habilitar comentários nesta atividade?';
+
+$string['messageprovider:mention'] = 'Notifica usuários quando eles são mencionados em um comentário.';
+$string['message_mentioned'] = 'Você foi mencionado em um comentário';
+$string['message_mentionedinanactivity'] = 'Você foi mencionado em um comentário na atividade <b>{$a}</b>';
+$string['message_mentioncontextname'] = 'Mencionado em um comentário.';
+$string['message_clicktoaccessactivity'] = 'Clique aqui para acessar a atividade';

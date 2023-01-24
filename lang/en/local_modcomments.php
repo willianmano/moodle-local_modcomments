@@ -38,3 +38,9 @@ $string['notification:clicktoaccess'] = 'Click to access the activity';
 
 $string['modcommentsheader'] = 'Module comments settings';
 $string['enablemodcomments'] = 'Enable comments in this activity?';
+
+$string['messageprovider:mention'] = 'Notify users when they are mentioned in a comment.';
+$string['message_mentioned'] = 'You were mentioned in a comment';
+$string['message_mentionedinanactivity'] = 'You were mentioned in a comment in the activity <b>{$a}</b>';
+$string['message_mentioncontextname'] = 'Mentioned in a comment.';
+$string['message_clicktoaccessactivity'] = 'Click here to access the portfolio';

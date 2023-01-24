@@ -1,24 +1,20 @@
-<div class="moove-container-fluid p-0 my-2 path-local_modcomments">
+<div id="local_modcomments-container" data-courseid="{{courseid}}" class="moove-container-fluid p-0 my-2 path-local_modcomments">
     <h5>{{#str}}activityscomments, local_modcomments{{/str}}</h5>
 
     <div class="card card-body">
-        <div class="newcomment d-flex">
-            <div class="userimg">
-                <img src="{{userpicture}}" alt="{{userfullname}}">
-            </div>
-            <div class="d-flex align-items-center justify-content-center ml-2">
-                <form class="comment-form">
-                    <div class="input-group">
-                        <input type="text" class="form-control comment-input" style="width: 400px;" placeholder="{{#str}}typeyourcomment, local_modcomments{{/str}}" required>
-                        <div class="input-group-append comment-button">
-                            <button type="submit" class="input-group-text">{{#str}}comment, local_modcomments{{/str}}</button>
-                        </div>
-                    </div>
-                </form>
+        <div class="add-comment">
+            <img src="{{{userpicture}}}" class="userimg" alt="{{{userfullname}}}">
+
+            <div class="input-group">
+                <p class="post-comment-input" placeholder="{{#str}}typeyourcomment, local_modcomments{{/str}}" contenteditable="true" data-tribute="true"></p>
+
+               <div class="text-right">
+                   <button class="btn btn-outline-primary post-comment-btn mt-2" type="button">
+                       <i class="fa fa-commenting-o"></i> {{#str}}comment, local_modcomments{{/str}}
+                   </button>
+               </div>
             </div>
         </div>
-
-        <hr>
 
         <div class="comments-container">
             {{#comments}}
@@ -32,7 +28,7 @@
                             <span class="small">{{humantimecreated}}</span>
                         </div>
                     </div>
-                    <p class="text">{{comment}}</p>
+                    <p class="text">{{{comment}}}</p>
                 </div>
             {{/comments}}
         </div>
@@ -41,8 +37,11 @@
 
 {{#js}}
     require([
-        'local_modcomments/addcomment'
-    ], function(AddComment) {
+        'local_modcomments/addcomment',
+        'local_modcomments/tribute_init'
+    ], function(AddComment, TributeInit) {
         AddComment.init({{courseid}}, {{cmid}}, '{{modname}}');
+
+        TributeInit.init();
     });
 {{/js}}

@@ -25,6 +25,14 @@
 defined('MOODLE_INTERNAL') || die();
 
 $functions = [
+    'local_modcomments_enrolledusers' => [
+        'classname' => 'local_modcomments\external\course',
+        'classpath' => 'local/modcomments/classes/external/course.php',
+        'methodname' => 'enrolledusers',
+        'description' => 'Get the list of enrolled users in a course',
+        'type' => 'read',
+        'ajax' => true
+    ],
     'local_modcomments_addcomment' => [
         'classname' => 'local_modcomments\external\comment',
         'classpath' => 'local/modcomments/classes/external/comment.php',

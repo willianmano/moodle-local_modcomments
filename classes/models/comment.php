@@ -16,7 +16,10 @@
 
 namespace local_modcomments\models;
 
+use local_modcomments\notification\commentadded;
+use local_modcomments\notification\mention;
 use local_modcomments\util\group;
+use local_modcomments\util\user;
 
 /**
  * Comment model class.
@@ -26,21 +29,31 @@ use local_modcomments\util\group;
  * @author      Willian Mano <willianmanoaraujo@gmail.com>
  */
 class comment {
-    public function save($courseid, $userid, $cmid, $modname, $comment) {
+    public function save($context, $courseid, $userid, $cmid, $modname, $comment) {
         global $DB;
+
+        list($finalcomment, $userstonotify) = $this->get_final_comment_and_users_to_notify($context, $courseid, $comment);
 
         $usercomment = new \stdClass();
         $usercomment->courseid = $courseid;
         $usercomment->userid = $userid;
         $usercomment->cmid = $cmid;
         $usercomment->module = $modname;
-        $usercomment->comment = $comment;
+        $usercomment->comment = $finalcomment;
         $usercomment->timecreated = time();
         $usercomment->timemodified = time();
 
         $id = $DB->insert_record('modcomments_comments', $usercomment);
 
         $usercomment->id = $id;
+
+        $notification = new commentadded($context, $courseid, $cmid, $modname);
+        $notification->send();
+
+        if ($userstonotify) {
+            $notification = new mention($context, $courseid, $cmid, $modname);
+            $notification->send_mentions_notifications($userstonotify);
+        }
 
         return $usercomment;
     }
@@ -94,5 +107,49 @@ class comment {
         }
 
         return $data;
+    }
+
+    private function get_final_comment_and_users_to_notify($context, $courseid, $comment) {
+        // Handle the mentions.
+        $matches = [];
+        preg_match_all('/<span(.*?)<\/span>/s', $comment, $matches);
+        $replaces = [];
+        $userstonotifymention = [];
+        if (!empty($matches[0])) {
+            $userutil = new user();
+
+            for ($i = 0; $i < count($matches[0]); $i++) {
+                $mention = $matches[0][$i];
+
+                $useridmatches = null;
+                preg_match( '@data-uid="([^"]+)"@' , $mention, $useridmatches);
+                $userid = array_pop($useridmatches);
+
+                if (!$userid) {
+                    continue;
+                }
+
+                $user = $userutil->get_by_id($userid, $context);
+
+                if (!$user) {
+                    continue;
+                }
+
+                $userprofilelink = new \moodle_url('/user/view.php',  ['id' => $user->id, 'course' => $courseid]);
+                $userprofilelink = \html_writer::link($userprofilelink->out(false), fullname($user));
+
+                $replaces['replace' . $i] = $userprofilelink;
+
+                $userstonotifymention[] = $user->id;
+            }
+        }
+
+        $outputtext = $comment;
+
+        foreach ($replaces as $key => $replace) {
+            $outputtext = str_replace("[$key]", $replace, $outputtext);
+        }
+
+        return [$outputtext, $userstonotifymention];
     }
 }
