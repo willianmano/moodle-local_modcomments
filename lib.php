@@ -25,7 +25,7 @@
 function local_modcomments_moove_module_footer() {
     global $PAGE;
 
-    $disabledmodules = ['forum'];
+    $disabledmodules = ['forum', 'label'];
 
     if (isguestuser() || !isloggedin() || !$PAGE->cm) {
         return false;
@@ -63,7 +63,11 @@ function local_modcomments_before_footer() {
  * https://docs.moodle.org/dev/Callbacks
  */
 function local_modcomments_coursemodule_standard_elements($formwrapper, $mform) {
-    global $DB;
+    $disabledmodules = ['forum', 'label'];
+
+    if (in_array($formwrapper->get_coursemodule()->modname, $disabledmodules)) {
+        return;
+    }
 
     $options = [
         1 => get_string('yes'),
