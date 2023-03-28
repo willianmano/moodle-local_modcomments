@@ -47,10 +47,14 @@ function local_modcomments_moove_module_footer() {
     return $renderer->render($contentrenderable);
 }
 
+function local_modcomments_dom_module_footer() {
+    return local_modcomments_moove_module_footer();
+}
+
 function local_modcomments_before_footer() {
     global $CFG;
 
-    if ($CFG->theme == 'moove') {
+    if ($CFG->theme == 'moove' || $CFG->theme == 'dom') {
         return '';
     }
 
@@ -91,6 +95,12 @@ function local_modcomments_coursemodule_standard_elements($formwrapper, $mform) 
  * @param object $course the course of the module
  */
 function local_modcomments_coursemodule_edit_post_actions($moduleinfo, $course) {
+    $disabledmodules = ['forum', 'label'];
+
+    if (in_array($moduleinfo->modulename, $disabledmodules)) {
+        return $moduleinfo;
+    }
+
     $settings = new \local_modcomments\util\settings();
     $settings->update_comments_setting($moduleinfo->coursemodule, $moduleinfo->enablemodcomments);
 
