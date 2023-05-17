@@ -16,7 +16,7 @@
 
 namespace local_modcomments\util;
 
-use context_course;
+use core\context\course as context_course;
 use user_picture;
 
 /**

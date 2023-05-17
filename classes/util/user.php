@@ -16,7 +16,7 @@
 
 namespace local_modcomments\util;
 
-use context;
+use core\context;
 use user_picture;
 
 /**
